@@ -1,6 +1,9 @@
 ## Portfoli
 
-Aquest és el meu **portfoli** dels meus estudis del *cicle superior de Desenvolupament d'Aplicacions Multiplataforma.*
+Aquest és el meu **portfoli** dels meus estudis del *cicle superior de Desenvolupament d'Aplicacions Multiplataforma (DAM).*
+
+Els meus estudis de DAM els vaig fer a l'Institut Nicolau Copèrnic.
+[logo INS Nicolau Copèrnic](https://copernic.cat/images/logos/logo-header.png)
 
 Els moduls que he fet són:
 - [M01: Sistemas Informatics](https://github.com/Juanfonsi/portfoli/tree/main/Moduls/M01%20Sistemes%20informatics) 
