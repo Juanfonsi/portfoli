@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 import java.io.*;
 
-public class TresEnRayTotal {
+public class TresEnRaya {
     static Scanner teclado = new Scanner(System.in);
     public static final String ANSI_RED = "\u001B[31m";
     public static final String ANSI_YELLOW = "\u001B[33m";
