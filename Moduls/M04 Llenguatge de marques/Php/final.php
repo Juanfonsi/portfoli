@@ -8,9 +8,9 @@ if (!isset($_SESSION['usuari']) || !isset($_SESSION['contrasenya'])) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tancar_sessio'])) {
-    // Destruir la sesión y redirigir al usuario a la página inici.php
+    // Destruir la sesión y redirigir al usuario a la página acomiadament.php
     session_destroy();
-    header("Location: inici.php");
+    header("Location: acomiadament.php");
     exit;
 }
 
