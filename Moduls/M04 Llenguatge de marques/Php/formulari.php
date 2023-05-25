@@ -83,21 +83,27 @@ if (isset($_POST['tancar'])) {
         <h1>Benvingut,
             <?php echo $_SESSION['usuari']; ?>
         </h1>
-    </header>
+        <link rel="stylesheet" href="main.css">
+        <link rel="stylesheet" href="formulari.css">
+        <div class="login">
     <form method="post" action="acomiadament.php">
         <button type="submit" name="tancar">Tancar Sessió</button>
     </form>
-    <br>
+    </div>
+    </header>
 
-    <?php if (isset($error)): ?>
-        <p style="color:red;">
-            <?php echo $error; ?>
-        </p>
-    <?php endif; ?>
+    
 
-    <form method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>">
+<?php if (isset($error)): ?>
+    <p style="color:red;">
+        <?php echo $error; ?>
+    </p>
+<?php endif; ?>
+
+
+<form method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>">
         <label for="email">Correu electrònic:</label>
-        <input type="text" name="email" id="email" value="<?php echo isset($_SESSION['email']) ? $_SESSION['email'] : ''; ?>"><br><br>
+        <input required type="text" name="email" id="email" value="<?php echo isset($_SESSION['email']) ? $_SESSION['email'] : ''; ?>"><br><br>
         <label for="date">Data:</label>
         <input type="date" name="date" id="date" value="<?php echo isset($_SESSION['date']) ? $_SESSION['date'] : ''; ?>"><br><br>
 
@@ -140,7 +146,7 @@ if (isset($_POST['tancar'])) {
                 echo 'selected'; ?>>Opció 4</option>
             <option value="option5" <?php if (isset($_SESSION['select']) && in_array('option5', $_SESSION['select']))
                 echo 'selected'; ?>>Opció 5</option>
-        </select><br><br>
+        </select>
 
         <button type="submit" name="enviar">Enviar</button>
     </form>
