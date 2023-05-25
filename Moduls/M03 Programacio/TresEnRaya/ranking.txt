@@ -1,0 +1,12 @@
+Jugador: juan
+Victorias: 0
+Derrotas: 1
+Empates: 0
+Partidas jugadas: 1
+
+Jugador: pol
+Victorias: 1
+Derrotas: 0
+Empates: 0
+Partidas jugadas: 1
+
