@@ -1,0 +1,333 @@
+import java.io.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+public class TresEnRaya {
+    private static Scanner teclado = new Scanner(System.in);
+    public static final String ANSI_RED = "\u001B[31m";
+    public static final String ANSI_BLUE = "\u001B[34m";
+    public static final String ANSI_RESET = "\u001B[0m";
+    public static final String ANSI_YELLOW = "\u001B[33m";
+    public static final int TABLERO = 3;
+
+    private static Map<String, Integer> ranking = new HashMap<>();
+    private static List<String> historico = new ArrayList<>();
+    private static final String RANKING_FILE = "ranking.txt";
+    private static final String HISTORICO_FILE = "historico.txt";
+
+    public static void main(String[] args) {
+        cargarRanking();
+
+        System.out.println("BENVINGUTS AL 3 EN RATLLA\n");
+        int opcion;
+        do {
+            System.out.println(ANSI_YELLOW +"Tria l'opció que vols:");
+            System.out.println("1. Jugar");
+            System.out.println("2. Veure Ranking");
+            System.out.println("3. Veure Històric de Partides");
+            System.out.println("0. Sortir" + ANSI_RESET);
+            opcion = teclado.nextInt();
+
+            switch (opcion) {
+                case 1:
+                    jugarPartida();
+                    break;
+                case 2:
+                    mostrarRanking();
+                    break;
+                case 3:
+                    mostrarHistoricoPartidas();
+                    break;
+                case 0:
+                    System.out.println("Gràcies per jugar. Fins aviat!");
+                    guardarDatos();
+                    break;
+                default:
+                    System.out.println("Opció invàlida. Torna a intentar-ho.");
+                    break;
+            }
+        } while (opcion != 0);
+
+    }
+
+    public static void jugarPartida() {
+        System.out.println("Introduce el nombre del jugador 1:");
+        String nombreJugador1 = teclado.next();
+        int puntosJugador1 = ranking.getOrDefault(nombreJugador1, 0);
+
+        if (puntosJugador1 == 0) {
+            System.out.println("Benvingut, " + nombreJugador1 + "!");
+        } else {
+            int posicionJugador1 = obtenerPosicionJugador(nombreJugador1);
+            System.out.println("Eres el jugador " + posicionJugador1 + " del ranking.");
+        }
+
+        System.out.println("Introduce el nombre del jugador 2:");
+        String nombreJugador2 = teclado.next();
+        int puntosJugador2 = ranking.getOrDefault(nombreJugador2, 0);
+
+        if (puntosJugador2 == 0) {
+            System.out.println("Benvingut, " + nombreJugador2 + "!");
+        } else {
+            int posicionJugador2 = obtenerPosicionJugador(nombreJugador2);
+            System.out.println("Eres el jugador " + posicionJugador2 + " del ranking.");
+        }
+
+        char jugadorActual = 'X';
+        char[][] tablero = crearTablero();
+
+        while (!hayGanador(tablero) && !hayEmpate(tablero)) {
+            mostrarTablero(tablero);
+            System.out.println("Es el turno de jugador " + jugadorActual);
+
+            int fila, columna;
+            do {
+                System.out.print("Ingrese la fila (0-" + (TABLERO - 1) + "): ");
+                fila = teclado.nextInt();
+                System.out.print("Ingrese la columna (0-" + (TABLERO - 1) + "): ");
+                columna = teclado.nextInt();
+            } while (!movimientoValido(fila, columna, tablero));
+
+            tablero[fila][columna] = jugadorActual;
+
+            if (jugadorActual == 'X') {
+                jugadorActual = 'O';
+            } else {
+                jugadorActual = 'X';
+            }
+
+            System.out.println();
+
+        }
+
+        mostrarTablero(tablero);
+
+        if (hayGanador(tablero)) {
+            if (jugadorActual == 'X') {
+                System.out.println("¡Felicidades, " + nombreJugador2 + ".");
+                puntosJugador2++;
+
+                String partida = getFechaActual() + historico.add(nombreJugador2 + " ha ganado a " + nombreJugador1);
+                historico.add(partida);
+            } else {
+                System.out.println("¡Felicidades, " + nombreJugador1 + ".");
+                puntosJugador1++;
+
+                String partida = getFechaActual() + historico.add(nombreJugador1 + " ha ganado a" + nombreJugador2);
+                historico.add(partida);
+            }
+        } else {
+            System.out.println("¡Empate!");
+            String partida = getFechaActual() + historico.add("Empate entre " + nombreJugador1 + " y " + nombreJugador2);
+            historico.add(partida);
+        }
+        ranking.put(nombreJugador1, puntosJugador1);
+        ranking.put(nombreJugador2, puntosJugador2);
+        System.out.println();
+
+    }
+
+    public static char[][] crearTablero() {
+        char[][] tablero = new char[TABLERO][TABLERO];
+
+        for (int i = 0; i < TABLERO; i++) {
+            for (int j = 0; j < TABLERO; j++) {
+                tablero[i][j] = '-';
+            }
+        }
+
+        return tablero;
+    }
+
+    public static void mostrarTablero(char[][] tablero) {
+        System.out.println("-------------");
+        for (int i = 0; i < TABLERO; i++) {
+            System.out.print("| ");
+            for (int j = 0; j < TABLERO; j++) {
+                System.out.print(tablero[i][j] + " | ");
+            }
+            System.out.println();
+            System.out.println("-------------");
+        }
+    }
+
+    public static boolean hayGanador(char[][] tablero) {
+// Comprobar filas
+        for (int i = 0; i < TABLERO; i++) {
+            if (tablero[i][0] != '-' && tablero[i][0] == tablero[i][1] && tablero[i][0] == tablero[i][2]) {
+                return true;
+            }
+        }
+
+// Comprobar columnas
+        for (int i = 0; i < TABLERO; i++) {
+            if (tablero[0][i] != '-' && tablero[0][i] == tablero[1][i] && tablero[0][i] == tablero[2][i]) {
+                return true;
+            }
+        }
+
+// Comprobar diagonales
+        if (tablero[0][0] != '-' && tablero[0][0] == tablero[1][1] && tablero[0][0] == tablero[2][2]) {
+            return true;
+        }
+
+        if (tablero[0][2] != '-' && tablero[0][2] == tablero[1][1] && tablero[0][2] == tablero[2][0]) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public static boolean movimientoValido(int fila, int columna, char[][] tablero) {
+        if (fila < 0 || fila >= TABLERO || columna < 0 || columna >= TABLERO) {
+            System.out.println("La fila y columna ingresadas están fuera del rango válido.");
+            return false;
+        }
+
+        if (tablero[fila][columna] != '-') {
+            System.out.println("La casilla seleccionada ya está ocupada.");
+            return false;
+        }
+
+        return true;
+    }
+    public static void mostrarHistoricoPartidas() {
+        if (historico.isEmpty()) {
+            System.out.println("L'històric de partides està buit.");
+        } else {
+            System.out.println("HISTÒRIC DE PARTIDES:\n");
+            for (String partida : historico) {
+                System.out.println(partida);
+            }
+        }
+        System.out.println();
+    }
+
+    public static int obtenerPosicionJugador(String nombreJugador) {
+        int posicion = 1;
+        for (Map.Entry<String, Integer> entry : ranking.entrySet()) {
+            if (entry.getKey().equals(nombreJugador))
+                break;
+            posicion++;
+        }
+        return posicion;
+    }
+
+    public static void mostrarRanking() {
+        System.out.println("RANKING\n");
+
+        if (ranking.isEmpty()) {
+            System.out.println("No hi ha jugadors en el ranking.");
+        } else {
+            System.out.println("Nom del jugador - Punts");
+
+            for (Map.Entry<String, Integer> entry : ranking.entrySet()) {
+                System.out.println(entry.getKey() + " - " + entry.getValue());
+            }
+        }
+
+        System.out.println();
+        List<String> rankingOrdenado = new ArrayList<>(ranking.keySet());
+
+        rankingOrdenado.sort((jugador1, jugador2) -> {
+            int puntosJugador1 = ranking.get(jugador1);
+            int puntosJugador2 = ranking.get(jugador2);
+
+            if (puntosJugador1 != puntosJugador2) {
+                return Integer.compare(puntosJugador2, puntosJugador1);
+            } else {
+                return Integer.compare(contarPartidas(jugador1), contarPartidas(jugador2));
+            }
+        });
+
+        System.out.println("Ranking:\n");
+        for (String jugador : rankingOrdenado) {
+            int puntos = ranking.get(jugador);
+            System.out.println(jugador + " - Puntos: " + puntos + " - Partidas jugadas: " + contarPartidas(jugador));
+        }
+
+        System.out.println();
+    }
+    public static int contarPartidas(String jugador) {
+        int count = 0;
+
+        for (String partida : historico) {
+            if (partida.contains(jugador)) {
+                count++;
+            }
+        }
+
+        return count;
+    }
+    public static void cargarRanking() {
+        try (Scanner scanner = new Scanner(new File(RANKING_FILE))) {
+            while (scanner.hasNextLine()) {
+                String[] parts = scanner.nextLine().split(":");
+                String nombreJugador = parts[0];
+                int puntos = Integer.parseInt(parts[1]);
+                ranking.put(nombreJugador, puntos);
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("No s'ha trobat el fitxer del ranking. Es crearà un nou ranking.");
+        }
+    }
+
+    public static void cargarHistorico() {
+        try (Scanner scanner = new Scanner(new File(HISTORICO_FILE))) {
+            while (scanner.hasNextLine()) {
+                historico.add(scanner.nextLine());
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("No s'ha trobat el fitxer de l'historic. Es crearà un nou historial.");
+        }
+    }
+
+    public static boolean hayEmpate(char[][] tablero) {
+        for (int i = 0; i < TABLERO; i++) {
+            for (int j = 0; j < TABLERO; j++) {
+                if (tablero[i][j] == '-') {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    public static void guardarRanking() {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(RANKING_FILE))) {
+            for (Map.Entry<String, Integer> entry : ranking.entrySet()) {
+                writer.println(entry.getKey() + ":" + entry.getValue());
+            }
+        } catch (IOException e) {
+            System.out.println("Error al guardar el ranking.");
+        }
+    }
+
+
+    public static void guardarHistorico() {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(HISTORICO_FILE))) {
+            for (String partida : historico) {
+                writer.println(partida);
+            }
+        } catch (IOException e) {
+            System.out.println("Error al guardar l'historic.");
+        }
+    }
+
+    public static void guardarDatos() {
+        guardarRanking();
+        guardarHistorico();
+    }
+    public static void guardarPartida(String nombreJugador1, String nombreJugador2, char[][] tablero) {
+        String ganador = (hayGanador(tablero)) ? ((tablero[0][0] == 'X') ? nombreJugador1 : nombreJugador2) : "Empat";
+        String partida = new Date() + ": " + nombreJugador1 + " - " + nombreJugador2 + " (" + ganador + ")";
+        historico.add(partida);
+    }
+
+    public static String getFechaActual() {
+        Date fecha = new Date();
+        DateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
+        return formato.format(fecha);
+    }
+}
